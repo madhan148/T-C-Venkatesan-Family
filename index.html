@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Housewarming — TC Venkatesan & Family</title>
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Playfair+Display:wght@400;700;900&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg-dark:#071028;
+    --accent:#c75a2f;
+    --gold:#f0c25b;
+    --wood1:#7a4b2e;
+    --wood2:#4b2b1a;
+    --muted:#6c6c6c;
+    --text-dark:#1f1f1f;
+    --card-bg:#FDF3E7; /* Option C */
+  }
+
+  html,body{
+    height:100%;
+    margin:0;
+    font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    background:
+      radial-gradient(900px 500px at 12% 8%, rgba(255,160,80,0.03), transparent 8%),
+      linear-gradient(180deg,#071028 0%, #0c1322 34%, #eae6df 100%);
+    color:var(--text-dark);
+    overflow:hidden;
+  }
+
+  .stage{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:18px}
+  .vignette{position:absolute;inset:0;pointer-events:none;background:
+    radial-gradient(40% 60% at 50% 32%, rgba(255,255,255,0.02), transparent 30%),
+    radial-gradient(100% 60% at 50% 100%, rgba(0,0,0,0.45), transparent 40%);}
+
+  .door-wrap{width:100%;height:100vh;display:flex;align-items:center;justify-content:center;perspective:2200px;position:relative}
+  .frame{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+  .frame .trim{width:94%;max-width:1400px;height:88vh;border-radius:20px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.04));box-shadow:0 40px 120px rgba(2,6,23,0.6);}
+
+  .doors{width:82%;max-width:1100px;height:84vh;max-height:780px;display:flex;align-items:center;justify-content:center;position:relative}
+
+  .panel{
+    width:50%;height:100%;border-radius:16px;position:relative;overflow:hidden;
+    transition:transform 1.2s cubic-bezier(.2,.9,.2,1), box-shadow .45s ease;
+    box-shadow:0 30px 90px rgba(2,6,23,0.6);
+  }
+  .panel.left{transform-origin:left center;background:linear-gradient(180deg,var(--wood1),#5a341f);}
+  .panel.right{transform-origin:right center;background:linear-gradient(180deg,var(--wood2),#3b2214);}
+
+  .panel:before{
+    content:'';position:absolute;inset:10px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.12));pointer-events:none;
+    box-shadow:inset 0 6px 22px rgba(0,0,0,0.35);
+  }
+  .grain{position:absolute;inset:0;background-image:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.01));opacity:0.06;mix-blend-mode:multiply;}
+  .handle{position:absolute;top:50%;transform:translateY(-50%);width:20px;height:90px;border-radius:12px;background:linear-gradient(180deg,#e7cda4,#9a6f44);box-shadow:0 6px 20px rgba(0,0,0,0.45)}
+  .left .handle{right:24px} .right .handle{left:24px}
+
+  .doors.open .left{transform:rotateY(-100deg)}
+  .doors.open .right{transform:rotateY(100deg)}
+
+  /* Center knock CTA (will be removed after open) */
+  .knock-cta{position:absolute;top:50%;left:50%;transform:translate(-50%,-110%);display:flex;flex-direction:column;align-items:center;gap:12px;z-index:6}
+  .knock-circle{width:96px;height:96px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));backdrop-filter:blur(6px);box-shadow:0 18px 50px rgba(0,0,0,0.6);cursor:pointer;color:#fff;font-weight:800}
+  .knock-hint{color:rgba(255,255,255,0.95);font-size:13px}
+
+  /* reveal card: Option C (light beige) */
+  .reveal{
+    position:absolute;inset:8% 6% 8% 6%;border-radius:16px;
+    background: var(--card-bg);
+    border:1px solid rgba(0,0,0,0.06);
+    box-shadow: 0 30px 60px rgba(2,6,23,0.12);
+    padding:36px; opacity:0; transform:translateY(18px) scale(.98); transition:opacity .6s ease .35s, transform .6s ease .35s; pointer-events:none; overflow:auto;
+  }
+  .reveal.show{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+
+  .invite{display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap}
+  .left-col{flex:0 0 46%;min-width:260px}
+  .right-col{flex:1;min-width:280px}
+  .title{font-family:'Playfair Display', serif;font-size:36px;margin:0;font-weight:700;color:#3b2f2a}
+  .subtitle{margin:8px 0 18px;color:#5a5652;font-size:15px;font-weight:400}
+  .info-card{background:transparent;padding:18px;border-radius:12px;}
+  .label{font-size:13px;color:#7a7170;margin-bottom:6px}
+  .value{font-weight:700;color:#2b2422;margin:0 0 12px}
+
+  .controls{display:flex;gap:12px;margin-top:12px;flex-wrap:wrap}
+  .btn{background:var(--accent);color:#fff;padding:10px 14px;border-radius:10px;border:none;font-weight:700;cursor:pointer}
+  .btn.map{background:#fff;color:#6b4e34;border:2px solid rgba(0,0,0,0.02);font-weight:700}
+
+  .lamp{display:flex;align-items:center;gap:12px;cursor:pointer}
+  .lamp .bulb{transition:filter .25s}
+  .lamp.on .bulb{filter:drop-shadow(0 14px 36px rgba(255,160,40,.28))}
+
+  .rangoli{width:220px;margin-top:18px}
+
+  canvas#confetti{position:absolute;inset:0;pointer-events:none;z-index:60}
+
+  @media (max-width:900px){
+    .title{font-size:28px}
+    .left-col{flex-basis:100%}
+    .right-col{flex-basis:100%}
+    .knock-cta{transform:translate(-50%,-95%)}
+    .doors{width:92%}
+  }
+  @media (max-width:480px){
+    .knock-circle{width:80px;height:80px;font-size:14px}
+    .reveal{inset:6% 4%}
+    .title{font-size:22px}
+  }
+
+  .panel:focus{outline:4px solid rgba(199,90,48,0.12);border-radius:14px}
+</style>
+</head>
+<body>
+  <div class="stage" role="application" aria-label="Housewarming invitation">
+    <div class="vignette" aria-hidden="true"></div>
+
+    <div class="door-wrap">
+      <div class="frame" aria-hidden="true"><div class="trim"></div></div>
+
+      <div class="doors" id="doors" aria-hidden="false">
+        <div class="panel left" id="leftPanel" role="button" tabindex="0" aria-label="Open left door">
+          <div class="grain"></div>
+          <div class="handle"></div>
+        </div>
+
+        <div class="panel right" id="rightPanel" role="button" tabindex="0" aria-label="Open right door">
+          <div class="grain"></div>
+          <div class="handle"></div>
+        </div>
+      </div>
+
+      <!-- Knock CTA (removed after open) -->
+      <div class="knock-cta" id="knockCta" aria-hidden="false">
+        <div class="knock-circle" id="knockBtn" role="button" tabindex="0">KNOCK</div>
+        <div class="knock-hint" id="knockHint">Tap or press Enter to open</div>
+      </div>
+
+      <!-- Reveal card (no eye icon present anywhere) -->
+      <div class="reveal" id="reveal" aria-hidden="true">
+        <div class="invite">
+          <div class="left-col">
+            <h1 class="title" id="titleText">House Warming Ceremony</h1>
+            <p class="subtitle" id="subtitleText">We're settling into our new space and want to celebrate with you!</p>
+
+            <div class="info-card" aria-label="Invitation details">
+              <div>
+                <div class="label">Hosted by</div>
+                <div class="value" id="host">T C Venkatesan & Family</div>
+              </div>
+
+              <div>
+                <div class="label">Date</div>
+                <div class="value" id="date">November 23rd, 2025</div>
+              </div>
+
+              <div>
+                <div class="label">Time</div>
+                <div class="value" id="time">At 4:30 AM</div>
+              </div>
+
+              <div>
+                <div class="label">Venue</div>
+                <div class="value" id="venue">4/10, Chellamal Nagar 1st Main Street, Ramapuram, Chennai-89</div>
+              </div>
+
+              <div>
+                <div class="label">Contact</div>
+                <div class="value" id="contact">7904919036 , 9629995222</div>
+              </div>
+
+              <div class="controls">
+                <a id="mapsBtn" class="btn map" href="https://www.google.com/maps?q=13.0243876,80.1857152" target="_blank" rel="noopener">Open Location</a>
+                <button class="btn" id="celebrateBtn">Celebrate</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="right-col">
+            <div style="display:flex;justify-content:flex-end">
+              <div class="lamp" id="lamp" title="Toggle lamp (tap)" role="button" tabindex="0" aria-pressed="false">
+                <svg viewBox="0 0 64 110" width="64" height="96" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <defs>
+                    <radialGradient id="lg" cx="30%" cy="20%" r="60%">
+                      <stop offset="0%" stop-color="#fffef0"/>
+                      <stop offset="45%" stop-color="#ffd975"/>
+                      <stop offset="100%" stop-color="#ffb63a"/>
+                    </radialGradient>
+                  </defs>
+                  <rect x="26" y="14" width="12" height="44" rx="6" fill="#5a3c2a"/>
+                  <circle cx="32" cy="36" r="10" class="bulb" fill="#e6e6e6"/>
+                </svg>
+              </div>
+            </div>
+
+            <svg class="rangoli" viewBox="0 0 220 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" aria-label="Rangoli">
+              <g fill="none" stroke="#f0c25b" stroke-width="3" stroke-linecap="round">
+                <path class="stroke-anim" d="M110 10 C135 10 150 25 170 40 C150 55 135 70 110 70 C85 70 70 55 50 40 C70 25 85 10 110 10 Z"/>
+                <circle class="stroke-anim" cx="110" cy="40" r="12" stroke="#b85b1a" stroke-width="2"/>
+              </g>
+            </svg>
+
+          </div>
+        </div>
+      </div>
+
+      <canvas id="confetti" aria-hidden="true"></canvas>
+    </div>
+  </div>
+
+<script>
+  // Invitation data
+  const data = {
+    host: 'TC Venkatesan & Family',
+    date: 'November 23rd, 2025',
+    time: 'At 4:30 AM',
+    venue: '4/10 Chellamal Nagar 1st Main Street, Ramapuram, Chennai-89',
+    contact: '7904919036 , 9843413969',
+    maps: 'https://www.google.com/maps?q=13.0243876,80.1857152'
+  };
+
+  // Fill fields
+  document.getElementById('host').textContent = data.host;
+  document.getElementById('date').textContent = data.date;
+  document.getElementById('time').textContent = data.time;
+  document.getElementById('venue').textContent = data.venue;
+  document.getElementById('contact').textContent = data.contact;
+  document.getElementById('mapsBtn').href = data.maps;
+
+  // Elements
+  const doors = document.querySelector('.doors');
+  const leftPanel = document.getElementById('leftPanel');
+  const rightPanel = document.getElementById('rightPanel');
+  const knockBtn = document.getElementById('knockBtn');
+  const knockCta = document.getElementById('knockCta');
+  const reveal = document.getElementById('reveal');
+
+  // Open doors, reveal, hide knock CTA completely
+  function openDoors(){
+    if(doors.classList.contains('open')) return;
+    doors.classList.add('open');
+
+    // remove knock CTA (fade then remove)
+    if(knockCta){
+      knockCta.style.transition = 'opacity .25s ease';
+      knockCta.style.opacity = '0';
+      knockCta.setAttribute('aria-hidden','true');
+      setTimeout(()=> {
+        if(knockCta && knockCta.parentNode) knockCta.parentNode.removeChild(knockCta);
+      }, 300);
+    }
+
+    // reveal card after cinematic delay
+    setTimeout(()=> {
+      reveal.classList.add('show');
+      // draw rangoli
+      const paths = document.querySelectorAll('.stroke-anim');
+      paths.forEach(p=>{ p.style.animation='none'; void p.offsetWidth; p.style.animation='draw 2.6s ease forwards'; });
+    }, 520);
+
+    // confetti
+    startConfetti(1);
+  }
+
+  // Click / keyboard handlers
+  knockBtn.addEventListener('click', openDoors);
+  leftPanel.addEventListener('click', openDoors);
+  rightPanel.addEventListener('click', openDoors);
+  knockBtn.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); openDoors(); }});
+  leftPanel.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); openDoors(); }});
+  rightPanel.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); openDoors(); }});
+
+  // Lamp toggle
+  const lamp = document.getElementById('lamp');
+  lamp.addEventListener('click', ()=> lamp.classList.toggle('on'));
+  lamp.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') lamp.classList.toggle('on'); });
+
+  // Celebrate button
+  document.getElementById('celebrateBtn').addEventListener('click', ()=> {
+    const paths = document.querySelectorAll('.stroke-anim');
+    paths.forEach(p=>{ p.style.animation='none'; void p.offsetWidth; p.style.animation='draw 2.6s ease forwards'; });
+    startConfetti(2);
+  });
+
+  // Confetti (lightweight)
+  const canvas = document.getElementById('confetti');
+  const ctx = canvas.getContext('2d');
+  let confetti = [], raf=null;
+  function fitCanvas(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  function startConfetti(mult=1){
+    fitCanvas();
+    const count = Math.max(60, Math.floor(window.innerWidth/18) * mult);
+    for(let i=0;i<count;i++){
+      confetti.push({
+        x: Math.random()*canvas.width,
+        y: Math.random()*-canvas.height,
+        vx: (Math.random()-0.5)*3,
+        vy: 2 + Math.random()*5,
+        size: 6 + Math.random()*10,
+        rot: Math.random()*360,
+        rotSpeed: (Math.random()-0.5)*10,
+        color: `hsl(${Math.floor(Math.random()*60)+10},75%, ${Math.floor(Math.random()*30)+45}%)`
+      });
+    }
+    if(!raf) run();
+  }
+  function run(){
+    raf = requestAnimationFrame(run);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    for(let i=0;i<confetti.length;i++){
+      const p = confetti[i];
+      p.x += p.vx; p.y += p.vy; p.rot += p.rotSpeed;
+      ctx.save();
+      ctx.translate(p.x,p.y);
+      ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.6);
+      ctx.restore();
+    }
+    confetti = confetti.filter(p => p.y < canvas.height + 120);
+    if(confetti.length === 0){ cancelAnimationFrame(raf); raf = null; }
+  }
+  window.addEventListener('resize', fitCanvas);
+  fitCanvas();
+
+  // Prevent page scroll when interacting (mobile)
+  document.addEventListener('touchmove', (e)=>{ if(doors.classList.contains('open')) e.preventDefault(); }, {passive:false});
+</script>
+</body>
+</html>
